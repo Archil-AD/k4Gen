@@ -21,12 +21,16 @@ HepMCToEDMConverter::convert(std::shared_ptr<const HepMC3::GenParticle> hepmcPar
   edm_particle.setMomentum({p.px(), p.py(), p.pz()});
   edm_particle.setMass(hepmcParticle->generated_mass());
 
+#ifdef EDM4HEP_MCPARTICLE_HAS_HELICITY
+  // TODO: Figure out what we want to store here and how to retrieve it from HepMC3
+#else
   // add spin (particle helicity) information if available
   std::shared_ptr<HepMC3::VectorFloatAttribute> spin = hepmcParticle->attribute<HepMC3::VectorFloatAttribute>("spin");
   if (spin) {
     edm4hep::Vector3f hel(spin->value()[0], spin->value()[1], spin->value()[2]);
     edm_particle.setSpin(hel);
   }
+#endif
 
   // convert vertex info
   auto prodVtx = hepmcParticle->production_vertex();
